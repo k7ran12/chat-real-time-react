@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import './App.css';
 import { io } from "socket.io-client";
 import Card from './components/Card/Card';
+import notificationSound from './assets/sound/notification.mp3';
 
 function App() {
   const [socket, setSocket] = useState(null);
@@ -9,8 +10,12 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [token, setToken] = useState(localStorage.getItem("tk") || ''); 
   const [showForm, setShowForm] = useState(!token); // Mostrar el formulario si no hay token
+  const [typingMessage, setTypingMessage] = useState('');
+  const [typingMessageUser, setTypingMessageUser] = useState('');
 
   const messagesEndRef = useRef(null);
+  const audioRef = useRef(new Audio(notificationSound));
+  const typingTimeoutRef = useRef(null);
 
   useEffect(() => {
     const newSocket = io('http://161.132.48.191:3000', {
@@ -31,8 +36,27 @@ function App() {
     });
 
     newSocket.on('message', (message) => {
-      console.log(message);
+      console.log('usuario mensaje', message.username);
+      console.log('usuario escribe', typingMessageUser)
+      if(message.username === typingMessageUser){
+        setTypingMessage('')
+        setTypingMessageUser('')
+      }
       setMessages((prevMessages) => [...prevMessages, { text: message.message, username: message.username, sentByUser: message.username === token }]);
+      if (message.username !== token) {
+        audioRef.current.play();
+      }
+      scrollToBottom();
+    });
+
+    newSocket.on('typing', (data) => {
+      if (data.username !== token) {
+        setTypingMessage(`${data.username} está escribiendo...`);
+        console.log('seteando user', data.username)
+        setTypingMessageUser(data.username)
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => setTypingMessage(''), 2000);
+      }
       scrollToBottom();
     });
 
@@ -73,6 +97,13 @@ function App() {
     setShowForm(false); // Ocultar el formulario después de guardar el token
   };
 
+  const handleTyping = (e) => {
+    setMessage(e.target.value);
+    if (socket) {
+      socket.emit('typing', { username: token });
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <Card />
@@ -110,12 +141,15 @@ function App() {
             </div>
           ))}
           <div ref={messagesEndRef} />
+          <div className={`text-sm text-gray-500 mb-2 ${typingMessage ? 'block' : 'hidden'}`}>
+            {typingMessage}
+          </div>
         </div>
         <form onSubmit={sendMessage} className={`flex ${showForm ? 'hidden' : 'block'}`}>
           <input
             type="text"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={handleTyping}
             className="flex-grow p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
             placeholder="Escribe tu mensaje..."
           />
