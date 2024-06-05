@@ -38,10 +38,7 @@ function App() {
     newSocket.on('message', (message) => {
       console.log('usuario mensaje', message.username);
       console.log('usuario escribe', typingMessageUser)
-      if(message.username === typingMessageUser){
-        setTypingMessage('')
-        setTypingMessageUser('')
-      }
+      setTypingMessage('')
       setMessages((prevMessages) => [...prevMessages, { text: message.message, username: message.username, sentByUser: message.username === token }]);
       if (message.username !== token) {
         audioRef.current.play();
