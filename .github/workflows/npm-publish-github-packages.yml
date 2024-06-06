@@ -19,7 +19,6 @@ jobs:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USER }}
         key: ${{ secrets.VPS_KEY }}
-        passphrase: ${{ secrets.VPS_PASSPHRASE }} # Si tu clave SSH tiene una passphrase
         script: |
           cd /var/www/html/chat-real-time-react
           git pull origin master
