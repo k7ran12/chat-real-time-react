@@ -13,6 +13,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18' # Usa la versión que necesites, por ejemplo, la última LTS
+
+    - name: Install dependencies
+      run: npm install
+
     - name: Execute SSH commands
       uses: appleboy/ssh-action@master
       with:
@@ -22,4 +30,5 @@ jobs:
         script: |
           cd /var/www/html/chat-real-time-react
           git pull origin master
+          npm install
           npm run build
