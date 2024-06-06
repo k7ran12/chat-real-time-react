@@ -20,5 +20,5 @@ jobs:
         username: ${{ secrets.VPS_USER }}
         password: ${{ secrets.VPS_PASSWORD }}
         script: |
-          cd /ruta/a/tu/proyecto
+          cd /var/www/html/chat-real-time-react
           git pull origin master
