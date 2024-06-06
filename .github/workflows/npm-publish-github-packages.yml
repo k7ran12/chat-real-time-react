@@ -22,3 +22,4 @@ jobs:
         script: |
           cd /var/www/html/chat-real-time-react
           git pull origin master
+          npm run build
