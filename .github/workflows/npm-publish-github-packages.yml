@@ -20,6 +20,20 @@ jobs:
         username: ${{ secrets.VPS_USER }}
         password: ${{ secrets.VPS_PASSWORD }}
         script: |
+          # Verifica la versión de Node.js
+          node -v
+
+          # Navega al directorio del proyecto
           cd /var/www/html/chat-real-time-react
+          
+          # Elimina node_modules y package-lock.json (si existe) para una instalación limpia
+          rm -rf node_modules package-lock.json
+          
+          # Actualiza el repositorio
           git pull origin master
+          
+          # Instala las dependencias
+          npm install
+          
+          # Construye el proyecto
           npm run build
